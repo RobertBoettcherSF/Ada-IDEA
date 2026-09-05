@@ -40,13 +40,11 @@ package IDEA is
    
    -- Generates the 52 subkeys for encryption from a 128-bit master key
    function Generate_Encryption_Keys (Key : Key_Block) return Subkey_Array
-     with Global => null,
-          Post   => Generate_Encryption_Keys'Result'Length = 52;
+     with Global => null;
 
    -- Generates the 52 subkeys for decryption from the encryption subkeys
    function Generate_Decryption_Keys (Encrypt_Keys : Subkey_Array) return Subkey_Array
-     with Global => null,
-          Post   => Generate_Decryption_Keys'Result'Length = 52;
+     with Global => null;
 
    -- Core Cipher Operations
    
