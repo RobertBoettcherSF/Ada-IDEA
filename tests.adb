@@ -38,7 +38,7 @@ begin
    -- TEST 3: Modular Multiplication (Overflow boundary)
    Put_Line ("TEST 3 — Modular Multiplication (Overflow boundary)");
    Check ("3.1 256 * 256 = 0 (Evaluates exactly to 65536)", Mul(256, 256) = 0);
-   Check ("3.2 256 * 512 = 32768", Mul(256, 512) = 32768);
+   Check ("3.2 256 * 512 = 65535", Mul(256, 512) = 65535);
    Check ("3.3 65535 * 65535 = 4", Mul(65535, 65535) = 4);
 
    -- TEST 4: Additive Inverse modulo 2**16
@@ -70,7 +70,7 @@ begin
    -- TEST 8: Generate Encryption Keys (Structure)
    Put_Line ("TEST 8 — Generate Encryption Keys Structure");
    declare
-      K : constant Key_Block := (1, 2, 3, 4, 5, 6, 7, 8);
+      K : constant Key_Block := [1, 2, 3, 4, 5, 6, 7, 8];
       S : constant Subkey_Array := Generate_Encryption_Keys(K);
    begin
       Check ("8.1 Subkeys 1..8 match original key precisely", 
@@ -83,7 +83,7 @@ begin
    -- TEST 9: Generate Decryption Keys (Structure)
    Put_Line ("TEST 9 — Generate Decryption Keys Structure");
    declare
-      K : constant Key_Block := (1, 2, 3, 4, 5, 6, 7, 8);
+      K : constant Key_Block := [1, 2, 3, 4, 5, 6, 7, 8];
       Enc : constant Subkey_Array := Generate_Encryption_Keys(K);
       Dec : constant Subkey_Array := Generate_Decryption_Keys(Enc);
    begin
@@ -97,21 +97,21 @@ begin
    -- TEST 10: Encryption/Decryption Round-trip (All Zeros)
    Put_Line ("TEST 10 — Encrypt/Decrypt Round-trip (All Zeros)");
    declare
-      K : constant Key_Block := (others => 0);
-      D : Data_Block := (others => 0);
+      K : constant Key_Block := [others => 0];
+      D : Data_Block := [others => 0];
    begin
       Encrypt_Block(D, K);
-      Check("10.1 Ciphertext is altered from 0s", D /= (0,0,0,0));
+      Check("10.1 Ciphertext is altered from 0s", D /= [0,0,0,0]);
       Decrypt_Block(D, K);
-      Check("10.2 Plaintext is fully restored", D = (0,0,0,0));
+      Check("10.2 Plaintext is fully restored", D = [0,0,0,0]);
       Check("10.3 State block footprint bounds valid", D'Length = 4);
    end;
 
    -- TEST 11: Encryption/Decryption Round-trip (Sequential Pattern)
    Put_Line ("TEST 11 — Encrypt/Decrypt Round-trip (Sequential)");
    declare
-      K : constant Key_Block := (1, 2, 3, 4, 5, 6, 7, 8);
-      D : Data_Block := (16#AAAA#, 16#BBBB#, 16#CCCC#, 16#DDDD#);
+      K : constant Key_Block := [1, 2, 3, 4, 5, 6, 7, 8];
+      D : Data_Block := [16#AAAA#, 16#BBBB#, 16#CCCC#, 16#DDDD#];
       Original : constant Data_Block := D;
    begin
       Encrypt_Block(D, K);
@@ -124,9 +124,9 @@ begin
    -- TEST 12: Encryption/Decryption Round-trip (High bit stress)
    Put_Line ("TEST 12 — Encrypt/Decrypt Round-trip (High Bit Stress)");
    declare
-      K : constant Key_Block := (16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#, 
-                                 16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#);
-      D : Data_Block := (16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#);
+      K : constant Key_Block := [16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#, 
+                                 16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#];
+      D : Data_Block := [16#FFFF#, 16#FFFF#, 16#FFFF#, 16#FFFF#];
       Original : constant Data_Block := D;
    begin
       Encrypt_Block(D, K);
@@ -141,6 +141,7 @@ begin
    begin
       declare
          K : Key_Block := Parse_Key("123"); -- Too short
+         pragma Unreferenced (K);
       begin
          Check("13.1 Too short string throws format exception", False);
       end;
@@ -151,6 +152,7 @@ begin
    begin
       declare
          K : Key_Block := Parse_Key("000000000000000000000000000000000"); -- Too long
+         pragma Unreferenced (K);
       begin
          Check("13.2 Too long string throws format exception", False);
       end;
@@ -161,6 +163,7 @@ begin
    begin
       declare
          K : Key_Block := Parse_Key("ZZZZ0000000000000000000000000000"); -- Invalid hex
+         pragma Unreferenced (K);
       begin
          Check("13.3 Invalid hex characters throw format exception", False);
       end;
