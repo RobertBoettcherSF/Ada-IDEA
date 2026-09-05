@@ -5,13 +5,15 @@ package body IDEA is
    -----------------------------------------------------------------------------
 
    function Mul (A, B : Word16) return Word16 is
-      -- Treat 0 as 2**16 (65536) in the modular arithmetic.
-      A32 : constant Word32 := (if A = 0 then 65536 else Word32 (A));
-      B32 : constant Word32 := (if B = 0 then 65536 else Word32 (B));
-      P32 : constant Word32 := (A32 * B32) mod 65537;
+      -- Use 64-bit intermediate type to prevent overflow. 65536 * 65536 = 2**32
+      -- which overflows a 32-bit modular integer to exactly 0 before modulo.
+      type Word64 is mod 2**64;
+      A64 : constant Word64 := (if A = 0 then 65536 else Word64 (A));
+      B64 : constant Word64 := (if B = 0 then 65536 else Word64 (B));
+      P64 : constant Word64 := (A64 * B64) mod 65537;
    begin
       -- Result of 65536 maps back to 0.
-      return (if P32 = 65536 then 0 else Word16 (P32));
+      return (if P64 = 65536 then 0 else Word16 (P64));
    end Mul;
 
    function Add_Inv (X : Word16) return Word16 is
